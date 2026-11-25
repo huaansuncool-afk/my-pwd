@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="本地密码箱" />
+  <meta name="theme-color" content="#070D1D" id="meta-theme-color" />
+  <title>本地密码箱 · iPhone 离线版</title>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2338BDF8'/%3E%3Cstop offset='55%25' stop-color='%232563EB'/%3E%3Cstop offset='100%25' stop-color='%234F46E5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Cpath d='M90 34l44 16v34c0 30-19 54-44 64-25-10-44-34-44-64V50z' fill='rgba(255,255,255,0.18)' stroke='%23fff' stroke-width='5'/%3E%3Crect x='70' y='84' width='40' height='30' rx='7' fill='%23fff'/%3E%3Cpath d='M78 84V72a12 12 0 0 1 24 0v12' fill='none' stroke='%23fff' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg-base: #070D1D;
+      --glass-panel: rgba(15, 23, 42, 0.56);
+      --glass-card: rgba(255, 255, 255, 0.08);
+      --glass-card-hover: rgba(255, 255, 255, 0.14);
+      --glass-border: rgba(255, 255, 255, 0.16);
+      --glass-top: rgba(255, 255, 255, 0.36);
+      --input-bg: rgba(15, 23, 42, 0.62);
+      --sheet-bg: rgba(13, 21, 38, 0.92);
+      --text-primary: #F8FAFC;
+      --text-secondary: #CBD5E1;
+      --text-muted: #94A3B8;
+      --accent: #38BDF8;
+      --accent-btn: linear-gradient(135deg, #2563EB, #06B6D4);
+      --accent-soft: rgba(56, 189, 248, 0.18);
+      --danger-bg: rgba(239, 68, 68, 0.20);
+      --danger-fg: #FCA5A5;
+      --success-bg: rgba(16, 185, 129, 0.22);
+      --success-fg: #6EE7B7;
+      --warn-bg: rgba(245, 158, 11, 0.22);
+      --warn-fg: #FCD34D;
+      --shadow: 0 14px 36px rgba(0, 0, 0, 0.42);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    body.light {
+      --bg-base: #E4EEFF;
+      --glass-panel: rgba(255, 255, 255, 0.68);
+      --glass-card: rgba(255, 255, 255, 0.62);
+      --glass-card-hover: rgba(255, 255, 255, 0.88);
+      --glass-border: rgba(255, 255, 255, 0.85);
+      --glass-top: rgba(255, 255, 255, 0.96);
+      --input-bg: rgba(255, 255, 255, 0.82);
+      --sheet-bg: rgba(248, 250, 252, 0.95);
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --accent: #2563EB;
+      --accent-btn: linear-gradient(135deg, #2563EB, #0EA5E9);
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --danger-fg: #DC2626;
+      --success-bg: rgba(16, 185, 129, 0.14);
+      --success-fg: #059669;
+      --warn-bg: rgba(245, 158, 11, 0.16);
+      --warn-fg: #B45309;
+      --shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Full-bleed Liquid Glass Aurora Background */
+    .aurora-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(37, 99, 235, 0.42), transparent 48%),
+        radial-gradient(circle at 82% 22%, rgba(124, 58, 237, 0.36), transparent 46%),
+        radial-gradient(circle at 55% 68%, rgba(6, 182, 212, 0.32), transparent 52%),
+        radial-gradient(circle at 22% 86%, rgba(14, 165, 233, 0.28), transparent 44%),
+        linear-gradient(145deg, #050914 0%, #0B162C 50%, #070D1D 100%);
+      transition: background 0.35s ease;
+    }
+
+    body.light .aurora-bg {
+      background:
+        radial-gradient(circle at 18% 18%, rgba(96, 165, 250, 0.42), transparent 50%),
+        radial-gradient(circle at 84% 24%, rgba(167, 139, 250, 0.34), transparent 48%),
+        radial-gradient(circle at 56% 64%, rgba(56, 189, 248, 0.30), transparent 52%),
+        radial-gradient(circle at 24% 86%, rgba(45, 212, 191, 0.28), transparent 44%),
+        linear-gradient(145deg, #E2EEFF 0%, #EFE7FF 50%, #DDF6FA 100%);
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      max-width: 560px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      padding: calc(var(--safe-top) + 14px) 16px calc(var(--safe-bottom) + 28px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .glass-panel {
+      background: var(--glass-panel);
+      border: 1px solid var(--glass-border);
+      border-top: 1.5px solid var(--glass-top);
+      border-radius: 26px;
+      backdrop-filter: blur(22px) saturate(160%);
+      -webkit-backdrop-filter: blur(22px) saturate(160%);
+      box-shadow: var(--shadow);
+    }
+
+    .hidden { display: none !important; }
+
+    /* Unlock View */
+    .unlock-wrap {
+      margin: auto 0;
+      padding: 28px 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      width: 66px;
+      height: 66px;
+      margin: 0 auto;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #38BDF8, #2563EB 55%, #4F46E5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.42);
+      border: 1.5px solid rgba(255, 255, 255, 0.42);
+    }
+
+    .unlock-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 2px 0 0;
+      letter-spacing: -0.3px;
+    }
+
+    .unlock-sub {
+      text-align: center;
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 4px 12px;
+      border-radius: 999px;
+      align-self: center;
+      font-weight: 600;
+    }
+
+    .file-drop {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: var(--glass-card);
+      border: 1.5px dashed var(--glass-border);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .file-drop:active { transform: scale(0.985); }
+    .file-drop.loaded {
+      border-style: solid;
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .file-drop-ico {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: var(--glass-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .file-drop-info { min-width: 0; flex: 1; }
+    .file-drop-name {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-drop-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .input-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .glass-input, .glass-select, .glass-textarea {
+      width: 100%;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    .glass-input:focus, .glass-select:focus, .glass-textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .glass-textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    .eye-btn {
+      position: absolute;
+      right: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      border-radius: 16px;
+      background: var(--accent-btn);
+      color: #FFFFFF;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.30);
+      transition: transform 0.15s, opacity 0.2s;
+    }
+
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.6; }
+
+    .btn-secondary {
+      min-height: 40px;
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      background: var(--glass-card);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-secondary:active { transform: scale(0.97); }
+
+    .btn-danger {
+      min-height: 40px;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 14px;
+      background: var(--danger-bg);
+      color: var(--danger-fg);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 0 14px;
+      cursor: pointer;
+    }
+
+    .unlock-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .error-banner {
+      background: var(--danger-bg);
+      color: var(--danger-fg);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .tip-box {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 11px 13px;
+    }
+
+    /* Main Vault Header */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .top-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .top-brand-ico {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #38BDF8, #2563EB);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.38);
+    }
+
+    .top-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .top-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-panel);
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .icon-btn:active { transform: scale(0.94); }
+
+    .top-btns {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Search & Filter Strip */
+    .search-shell {
+      position: sticky;
+      top: calc(var(--safe-top) + 8px);
+      z-index: 10;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      height: 40px;
+      border-radius: 20px;
+      padding: 0 14px;
+      font-size: 14px;
+      background: var(--glass-card);
+      color: var(--text-primary);
+      border: 1px solid var(--glass-border);
+      outline: none;
+    }
+
+    .search-input:focus { border-color: var(--accent); }
+
+    .add-pill {
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: var(--accent-btn);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .pill-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 0 2px;
+      scrollbar-width: none;
+    }
+    .pill-strip::-webkit-scrollbar { display: none; }
+
+    .cat-pill {
+      flex-shrink: 0;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-card);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .cat-pill.active {
+      background: var(--accent-btn);
+      color: #FFFFFF;
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Entry Cards */
+    .entry-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .entry-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 13px;
+      border-radius: 20px;
+      background: var(--glass-panel);
+      border: 1px solid var(--glass-border);
+      border-top: 1px solid var(--glass-top);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      cursor: pointer;
+      transition: transform 0.14s, background 0.2s;
+    }
+
+    .entry-card:active { transform: scale(0.985); }
+
+    .squircle {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #FFFFFF;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .sq-website { background: linear-gradient(135deg, #38BDF8, #2563EB); }
+    .sq-switch  { background: linear-gradient(135deg, #2DD4BF, #0F766E); }
+    .sq-windows { background: linear-gradient(135deg, #A78BFA, #6D28D9); }
+    .sq-app     { background: linear-gradient(135deg, #FBBF24, #EA580C); }
+    .sq-other   { background: linear-gradient(135deg, #F472B6, #DB2777); }
+
+    .card-mid {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 7px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .fav-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      font-size: 17px;
+      cursor: pointer;
+      color: var(--text-muted);
+      border-radius: 16px;
+    }
+
+    .fav-btn.on { color: #F59E0B; }
+
+    .copy-mini {
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 15px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-card);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 52px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* Bottom Action Bar for Export */
+    .dirty-bar {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: var(--warn-bg);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--warn-fg);
+    }
+
+    /* iOS Bottom Sheet Modal */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.56);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+
+    .sheet-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet-card {
+      width: 100%;
+      max-width: 560px;
+      max-height: 88dvh;
+      overflow-y: auto;
+      background: var(--sheet-bg);
+      border: 1px solid var(--glass-border);
+      border-top: 1.5px solid var(--glass-top);
+      border-radius: 28px 28px 0 0;
+      padding: 12px 18px calc(var(--safe-bottom) + 22px);
+      transform: translateY(28px);
+      transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .sheet-backdrop.open .sheet-card {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--text-muted);
+      opacity: 0.45;
+      margin: 0 auto 14px;
+    }
+
+    .detail-hero {
+      text-align: center;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 14px;
+    }
+
+    .detail-hero .squircle {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      font-size: 26px;
+      margin: 0 auto 10px;
+    }
+
+    .detail-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .detail-badges {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .detail-acts {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .field-card {
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 11px 13px;
+      margin-bottom: 10px;
+    }
+
+    .field-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+    .field-card-lbl {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .field-card-val {
+      font-size: 14px;
+      word-break: break-all;
+      line-height: 1.45;
+    }
+
+    .mono {
+      font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    .mini-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mini-pill {
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 13px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-panel);
+      color: var(--text-primary);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mini-pill.accent {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: transparent;
+    }
+
+    .form-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Dynamic Island Toast */
+    .toast {
+      position: fixed;
+      top: calc(var(--safe-top) + 12px);
+      left: 50%;
+      transform: translate(-50%, -20px);
+      z-index: 90;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.92);
+      color: #F8FAFC;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.36);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+      white-space: nowrap;
+      max-width: 90vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  </style>
+</head>
+<body>
+  <div class="aurora-bg"></div>
+  <div id="toast" class="toast"></div>
+
+  <div class="app-shell">
+    <!-- 1. UNLOCK SCREEN -->
+    <section id="view-unlock" class="glass-panel unlock-wrap">
+      <div class="brand-badge">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/>
+          <path d="M9.5 12l2 2 3.5-4"/>
+        </svg>
+      </div>
+      <h1 class="unlock-title">本地密码箱</h1>
+      <div class="unlock-sub">iPhone 离线版 · 100% 兼容桌面 .enc 加密库</div>
+
+      <label class="file-drop" id="file-drop-label" for="vault-file-input">
+        <div class="file-drop-ico">🔐</div>
+        <div class="file-drop-info">
+          <div class="file-drop-name" id="file-drop-name">选择电脑导出的 .enc 密码库文件</div>
+          <div class="file-drop-meta" id="file-drop-meta">支持 iCloud 云盘 / iPhone「文件」App（仅本地解密，不上传）</div>
+        </div>
+      </label>
+      <input id="vault-file-input" type="file" accept=".enc,.json,*/*" class="hidden" />
+
+      <div>
+        <label class="field-label" for="unlock-pwd">主密码</label>
+        <div class="input-row">
+          <input id="unlock-pwd" type="password" class="glass-input" placeholder="输入对应账号的登录密码" autocomplete="current-password" />
+          <button type="button" class="eye-btn" id="btn-toggle-unlock-pwd">显示</button>
+        </div>
+      </div>
+
+      <div id="unlock-error" class="error-banner hidden"></div>
+
+      <button type="button" class="btn-primary" id="btn-unlock">🔓 本地解密打开</button>
+
+      <div class="unlock-actions">
+        <button type="button" class="btn-secondary" id="btn-demo">✨ 体验演示库</button>
+        <button type="button" class="btn-secondary" id="btn-new-vault">➕ 新建空白库</button>
+      </div>
+
+      <div class="tip-box">
+        <strong>iPhone 使用小贴士：</strong>将电脑 <span class="mono">D:\Password Manager\Password\</span> 里的 <span class="mono">vault_用户名_xxx.enc</span> 存到 iCloud 云盘或「文件」中，选择后输入主密码即可查看与复制。在 Safari 点击底部分享按钮 →「添加到主屏幕」，可像原生 App 一样全屏打开。
+      </div>
+    </section>
+
+    <!-- 2. MAIN VAULT SCREEN -->
+    <section id="view-main" class="hidden">
+      <header class="top-bar">
+        <div class="top-brand">
+          <div class="top-brand-ico">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="top-title" id="main-owner-title">本地密码箱</div>
+            <div class="top-meta" id="main-meta-sub">已解密 · 本地离线</div>
+          </div>
+        </div>
+        <div class="top-btns">
+          <button type="button" class="icon-btn" id="btn-export-enc" title="导出最新 .enc">💾</button>
+          <button type="button" class="icon-btn" id="btn-theme" title="切换深浅色">🧊</button>
+          <button type="button" class="icon-btn" id="btn-lock" title="立即锁定">🔒</button>
+        </div>
+      </header>
+
+      <div class="glass-panel search-shell">
+        <div class="search-row">
+          <input id="search-input" type="search" class="search-input" placeholder="🔍 搜索名称、IP、网址、账号、备注..." />
+          <button type="button" class="add-pill" id="btn-add-entry">+ 新增</button>
+        </div>
+        <div class="pill-strip" id="cat-pill-strip"></div>
+      </div>
+
+      <div id="dirty-bar" class="dirty-bar hidden">
+        <span>本地有未导出的修改，导出 .enc 可同步回电脑</span>
+        <button type="button" class="mini-pill accent" id="btn-dirty-export">导出 .enc</button>
+      </div>
+
+      <main id="entry-list" class="entry-list"></main>
+    </section>
+  </div>
+
+  <!-- DETAIL BOTTOM SHEET -->
+  <div id="detail-sheet" class="sheet-backdrop">
+    <div class="sheet-card">
+      <div class="sheet-handle"></div>
+      <div id="detail-content"></div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT MODAL SHEET -->
+  <div id="edit-sheet" class="sheet-backdrop">
+    <div class="sheet-card">
+      <div class="sheet-handle"></div>
+      <h2 id="edit-sheet-title" style="margin:0 0 14px; font-size:18px; text-align:center;">新增密码</h2>
+      <form id="edit-form" class="form-grid">
+        <div class="form-row-2">
+          <div>
+            <label class="field-label" for="ed-type">密码类型</label>
+            <select id="ed-type" class="glass-select">
+              <option value="website">🌐 网站</option>
+              <option value="switch">🖧 交换机 / 网络设备</option>
+              <option value="windows">💻 Windows / 系统</option>
+              <option value="app">📱 APP / 软件</option>
+              <option value="other">🗂 其他 (数据库 / Linux)</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="ed-cat">分组标签</label>
+            <input id="ed-cat" class="glass-input" placeholder="如：核心交换机 / 工作平台" />
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label" for="ed-title">名称 *</label>
+          <input id="ed-title" class="glass-input" required placeholder="例如：vCenter / 仓库核心 / 谷歌邮箱" />
+        </div>
+
+        <div id="wrap-url">
+          <label class="field-label" for="ed-url">网站地址</label>
+          <input id="ed-url" class="glass-input mono" placeholder="https://example.com" />
+        </div>
+
+        <div id="wrap-host" class="hidden">
+          <label class="field-label" for="ed-host">IP 地址 / 主机名</label>
+          <input id="ed-host" class="glass-input mono" placeholder="192.168.1.1" />
+        </div>
+
+        <div id="wrap-proto-port" class="form-row-2 hidden">
+          <div id="wrap-proto">
+            <label class="field-label" for="ed-proto">协议</label>
+            <select id="ed-proto" class="glass-select">
+              <option value="SSH">SSH</option>
+              <option value="Telnet">Telnet</option>
+              <option value="Web">Web</option>
+              <option value="Console">Console</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="ed-port">端口</label>
+            <input id="ed-port" class="glass-input mono" placeholder="22 / 23 / 3389 / 3306" />
+          </div>
+        </div>
+
+        <div id="wrap-domain" class="hidden">
+          <label class="field-label" for="ed-domain">域 / 工作组</label>
+          <input id="ed-domain" class="glass-input" placeholder="可选" />
+        </div>
+
+        <div id="wrap-bind" class="hidden">
+          <label class="field-label" for="ed-bind">绑定手机 / 邮箱</label>
+          <input id="ed-bind" class="glass-input" placeholder="可选" />
+        </div>
+
+        <div>
+          <label class="field-label" for="ed-user">账号 / 用户名</label>
+          <input id="ed-user" class="glass-input mono" placeholder="admin / username" />
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <label class="field-label" for="ed-pwd" style="margin:0;">登录密码</label>
+            <button type="button" class="mini-pill accent" id="btn-gen-pwd">🎲 随机生成强密码</button>
+          </div>
+          <input id="ed-pwd" class="glass-input mono" placeholder="输入或生成密码" />
+        </div>
+
+        <div id="wrap-enable" class="hidden">
+          <label class="field-label" for="ed-enable">Enable / 特权密码</label>
+          <input id="ed-enable" class="glass-input mono" placeholder="可选" />
+        </div>
+
+        <div id="wrap-pin" class="hidden">
+          <label class="field-label" for="ed-pin">PIN 码</label>
+          <input id="ed-pin" class="glass-input mono" placeholder="可选" />
+        </div>
+
+        <div>
+          <label class="field-label" for="ed-notes">备注</label>
+          <textarea id="ed-notes" class="glass-textarea" placeholder="可选备注信息"></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:4px;">
+          <button type="button" class="btn-secondary" id="btn-edit-cancel" style="flex:1;">取消</button>
+          <button type="submit" class="btn-primary" style="flex:2;">保存条目</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- NEW VAULT MODAL SHEET -->
+  <div id="new-vault-sheet" class="sheet-backdrop">
+    <div class="sheet-card">
+      <div class="sheet-handle"></div>
+      <h2 style="margin:0 0 14px; font-size:18px; text-align:center;">新建本地加密库</h2>
+      <form id="new-vault-form" class="form-grid">
+        <div>
+          <label class="field-label" for="nv-user">用户名</label>
+          <input id="nv-user" class="glass-input" required placeholder="例如：ayun" />
+        </div>
+        <div>
+          <label class="field-label" for="nv-pwd">设置主密码（至少 6 位）</label>
+          <input id="nv-pwd" type="password" class="glass-input" required minlength="6" placeholder="请牢记，忘记无法找回" />
+        </div>
+        <div style="display:flex; gap:10px; margin-top:4px;">
+          <button type="button" class="btn-secondary" id="btn-nv-cancel" style="flex:1;">取消</button>
+          <button type="submit" class="btn-primary" style="flex:2;">创建并进入</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* =====================================================================
+       * 1. CRYPTO ENGINE: PBKDF2-HMAC-SHA256 + AES-256-GCM
+       *    100% compatible with Windows desktop password_manager.py (v1.13.1)
+       *    - Uses native Web Crypto API when available (fast hardware path)
+       *    - Includes pure-JS fallback for iOS file:// / non-secure contexts
+       * ===================================================================== */
+      const ENC_UTF8 = new TextEncoder();
+      const DEC_UTF8 = new TextDecoder();
+
+      function b64ToBytes(b64) {
+        const bin = atob(b64.replace(/\s+/g, ""));
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+      }
+
+      function bytesToB64(bytes) {
+        let s = "";
+        for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+        return btoa(s);
+      }
+
+      function randomBytes(len) {
+        const out = new Uint8Array(len);
+        if (window.crypto && window.crypto.getRandomValues) {
+          window.crypto.getRandomValues(out);
+        } else {
+          for (let i = 0; i < len; i++) out[i] = Math.floor(Math.random() * 256);
+        }
+        return out;
+      }
+
+      /* --- Pure-JS SHA-256 / HMAC-SHA256 / PBKDF2 / AES-256-GCM fallback --- */
+      const SHA256_K = new Uint32Array([
+        0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+        0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+        0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+        0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+        0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+        0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+        0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+        0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+      ]);
+
+      function sha256(msg) {
+        const len = msg.length;
+        const bitLen = len * 8;
+        const paddedLen = Math.ceil((len + 9) / 64) * 64;
+        const buf = new Uint8Array(paddedLen);
+        buf.set(msg);
+        buf[len] = 0x80;
+        const dv = new DataView(buf.buffer);
+        dv.setUint32(paddedLen - 8, Math.floor(bitLen / 0x100000000), false);
+        dv.setUint32(paddedLen - 4, bitLen >>> 0, false);
+
+        let h0 = 0x6a09e667, h1 = 0xbb67ae85, h2 = 0x3c6ef372, h3 = 0xa54ff53a;
+        let h4 = 0x510e527f, h5 = 0x9b05688c, h6 = 0x1f83d9ab, h7 = 0x5be0cd19;
+        const w = new Uint32Array(64);
+
+        for (let off = 0; off < paddedLen; off += 64) {
+          for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4, false);
+          for (let i = 16; i < 64; i++) {
+            const s0 = ((w[i - 15] >>> 7) | (w[i - 15] << 25)) ^ ((w[i - 15] >>> 18) | (w[i - 15] << 14)) ^ (w[i - 15] >>> 3);
+            const s1 = ((w[i - 2] >>> 17) | (w[i - 2] << 15)) ^ ((w[i - 2] >>> 19) | (w[i - 2] << 13)) ^ (w[i - 2] >>> 10);
+            w[i] = (w[i - 16] + s0 + w[i - 7] + s1) >>> 0;
+          }
+          let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+          for (let i = 0; i < 64; i++) {
+            const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
+            const ch = (e & f) ^ (~e & g);
+            const t1 = (h + S1 + ch + SHA256_K[i] + w[i]) >>> 0;
+            const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
+            const maj = (a & b) ^ (a & c) ^ (b & c);
+            const t2 = (S0 + maj) >>> 0;
+            h = g; g = f; f = e; e = (d + t1) >>> 0;
+            d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+          }
+          h0 = (h0 + a) >>> 0; h1 = (h1 + b) >>> 0; h2 = (h2 + c) >>> 0; h3 = (h3 + d) >>> 0;
+          h4 = (h4 + e) >>> 0; h5 = (h5 + f) >>> 0; h6 = (h6 + g) >>> 0; h7 = (h7 + h) >>> 0;
+        }
+        const out = new Uint8Array(32);
+        const ov = new DataView(out.buffer);
+        ov.setUint32(0, h0); ov.setUint32(4, h1); ov.setUint32(8, h2); ov.setUint32(12, h3);
+        ov.setUint32(16, h4); ov.setUint32(20, h5); ov.setUint32(24, h6); ov.setUint32(28, h7);
+        return out;
+      }
+
+      function hmacSha256(key, data) {
+        let k = key.length > 64 ? sha256(key) : key;
+        const ipad = new Uint8Array(64 + data.length);
+        const opad = new Uint8Array(64 + 32);
+        for (let i = 0; i < 64; i++) {
+          const kb = i < k.length ? k[i] : 0;
+          ipad[i] = kb ^ 0x36;
+          opad[i] = kb ^ 0x5c;
+        }
+        ipad.set(data, 64);
+        opad.set(sha256(ipad), 64);
+        return sha256(opad);
+      }
+
+      function pbkdf2Sha256Js(passwordBytes, salt, iterations) {
+        const block = new Uint8Array(salt.length + 4);
+        block.set(salt);
+        block[salt.length + 3] = 1;
+        let u = hmacSha256(passwordBytes, block);
+        const out = new Uint8Array(u);
+        for (let i = 1; i < iterations; i++) {
+          u = hmacSha256(passwordBytes, u);
+          for (let j = 0; j < 32; j++) out[j] ^= u[j];
+        }
+        return out;
+      }
+
+      const AES_SBOX = new Uint8Array([
+        0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
+        0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0,
+        0xb7,0xfd,0x93,0x26,0x36,0x3f,0xf7,0xcc,0x34,0xa5,0xe5,0xf1,0x71,0xd8,0x31,0x15,
+        0x04,0xc7,0x23,0xc3,0x18,0x96,0x05,0x9a,0x07,0x12,0x80,0xe2,0xeb,0x27,0xb2,0x75,
+        0x09,0x83,0x2c,0x1a,0x1b,0x6e,0x5a,0xa0,0x52,0x3b,0xd6,0xb3,0x29,0xe3,0x2f,0x84,
+        0x53,0xd1,0x00,0xed,0x20,0xfc,0xb1,0x5b,0x6a,0xcb,0xbe,0x39,0x4a,0x4c,0x58,0xcf,
+        0xd0,0xef,0xaa,0xfb,0x43,0x4d,0x33,0x85,0x45,0xf9,0x02,0x7f,0x50,0x3c,0x9f,0xa8,
+        0x51,0xa3,0x40,0x8f,0x92,0x9d,0x38,0xf5,0xbc,0xb6,0xda,0x21,0x10,0xff,0xf3,0xd2,
+        0xcd,0x0c,0x13,0xec,0x5f,0x97,0x44,0x17,0xc4,0xa7,0x7e,0x3d,0x64,0x5d,0x19,0x73,
+        0x60,0x81,0x4f,0xdc,0x22,0x2a,0x90,0x88,0x46,0xee,0xb8,0x14,0xde,0x5e,0x0b,0xdb,
+        0xe0,0x32,0x3a,0x0a,0x49,0x06,0x24,0x5c,0xc2,0xd3,0xac,0x62,0x91,0x95,0xe4,0x79,
+        0xe7,0xc8,0x37,0x6d,0x8d,0xd5,0x4e,0xa9,0x6c,0x56,0xf4,0xea,0x65,0x7a,0xae,0x08,
+        0xba,0x78,0x25,0x2e,0x1c,0xa6,0xb4,0xc6,0xe8,0xdd,0x74,0x1f,0x4b,0xbd,0x8b,0x8a,
+        0x70,0x3e,0xb5,0x66,0x48,0x03,0xf6,0x0e,0x61,0x35,0x57,0xb9,0x86,0xc1,0x1d,0x9e,
+        0xe1,0xf8,0x98,0x11,0x69,0xd9,0x8e,0x94,0x9b,0x1e,0x87,0xe9,0xce,0x55,0x28,0xdf,
+        0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16
+      ]);
+      const AES_RCON = [0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36];
+
+      function aes256ExpandKey(key) {
+        const rk = new Uint8Array(240);
+        rk.set(key);
+        let bytes = 32, rconIdx = 0;
+        const tmp = new Uint8Array(4);
+        while (bytes < 240) {
+          tmp[0] = rk[bytes - 4]; tmp[1] = rk[bytes - 3]; tmp[2] = rk[bytes - 2]; tmp[3] = rk[bytes - 1];
+          if (bytes % 32 === 0) {
+            const t = tmp[0];
+            tmp[0] = AES_SBOX[tmp[1]] ^ AES_RCON[rconIdx++];
+            tmp[1] = AES_SBOX[tmp[2]];
+            tmp[2] = AES_SBOX[tmp[3]];
+            tmp[3] = AES_SBOX[t];
+          } else if (bytes % 32 === 16) {
+            tmp[0] = AES_SBOX[tmp[0]]; tmp[1] = AES_SBOX[tmp[1]];
+            tmp[2] = AES_SBOX[tmp[2]]; tmp[3] = AES_SBOX[tmp[3]];
+          }
+          for (let i = 0; i < 4; i++) {
+            rk[bytes] = rk[bytes - 32] ^ tmp[i];
+            bytes++;
+          }
+        }
+        return rk;
+      }
+
+      function xtime(a) { return ((a << 1) ^ ((a & 0x80) ? 0x1b : 0)) & 0xff; }
+
+      function aes256EncryptBlock(block, rk) {
+        const s = new Uint8Array(block);
+        for (let i = 0; i < 16; i++) s[i] ^= rk[i];
+        for (let r = 1; r <= 14; r++) {
+          for (let i = 0; i < 16; i++) s[i] = AES_SBOX[s[i]];
+          let t = s[1]; s[1] = s[5]; s[5] = s[9]; s[9] = s[13]; s[13] = t;
+          t = s[2]; s[2] = s[10]; s[10] = t; t = s[6]; s[6] = s[14]; s[14] = t;
+          t = s[15]; s[15] = s[11]; s[11] = s[7]; s[7] = s[3]; s[3] = t;
+          if (r < 14) {
+            for (let c = 0; c < 16; c += 4) {
+              const a0 = s[c], a1 = s[c + 1], a2 = s[c + 2], a3 = s[c + 3];
+              const u = a0 ^ a1 ^ a2 ^ a3;
+              s[c]     ^= u ^ xtime(a0 ^ a1);
+              s[c + 1] ^= u ^ xtime(a1 ^ a2);
+              s[c + 2] ^= u ^ xtime(a2 ^ a3);
+              s[c + 3] ^= u ^ xtime(a3 ^ a0);
+            }
+          }
+          const off = r * 16;
+          for (let i = 0; i < 16; i++) s[i] ^= rk[off + i];
+        }
+        return s;
+      }
+
+      function gfMul(x, y) {
+        const z = new Uint8Array(16);
+        const v = new Uint8Array(y);
+        for (let i = 0; i < 16; i++) {
+          for (let bit = 7; bit >= 0; bit--) {
+            if ((x[i] >> bit) & 1) {
+              for (let j = 0; j < 16; j++) z[j] ^= v[j];
+            }
+            const lsb = v[15] & 1;
+            for (let j = 15; j > 0; j--) v[j] = (v[j] >>> 1) | ((v[j - 1] & 1) << 7);
+            v[0] = v[0] >>> 1;
+            if (lsb) v[0] ^= 0xe1;
+          }
+        }
+        return z;
+      }
+
+      function ghash(h, aad, ct) {
+        let y = new Uint8Array(16);
+        function absorb(data) {
+          for (let i = 0; i < data.length; i += 16) {
+            const blk = new Uint8Array(16);
+            blk.set(data.subarray(i, Math.min(i + 16, data.length)));
+            for (let j = 0; j < 16; j++) y[j] ^= blk[j];
+            y = gfMul(y, h);
+          }
+        }
+        absorb(aad);
+        absorb(ct);
+        const lenBlk = new Uint8Array(16);
+        const dv = new DataView(lenBlk.buffer);
+        const aadBits = aad.length * 8, ctBits = ct.length * 8;
+        dv.setUint32(0, Math.floor(aadBits / 0x100000000), false);
+        dv.setUint32(4, aadBits >>> 0, false);
+        dv.setUint32(8, Math.floor(ctBits / 0x100000000), false);
+        dv.setUint32(12, ctBits >>> 0, false);
+        for (let j = 0; j < 16; j++) y[j] ^= lenBlk[j];
+        return gfMul(y, h);
+      }
+
+      function inc32(counter) {
+        const c = new Uint8Array(counter);
+        const dv = new DataView(c.buffer);
+        dv.setUint32(12, (dv.getUint32(12, false) + 1) >>> 0, false);
+        return c;
+      }
+
+      function aesGcmJsCrypt(key, nonce, input, aad, encrypt) {
+        const rk = aes256ExpandKey(key);
+        const H = aes256EncryptBlock(new Uint8Array(16), rk);
+        const J0 = new Uint8Array(16);
+        J0.set(nonce, 0);
+        J0[15] = 1;
+
+        const data = encrypt ? input : input.subarray(0, input.length - 16);
+        const out = new Uint8Array(data.length);
+        let ctr = inc32(J0);
+        for (let i = 0; i < data.length; i += 16) {
+          const ks = aes256EncryptBlock(ctr, rk);
+          const n = Math.min(16, data.length - i);
+          for (let j = 0; j < n; j++) out[i + j] = data[i + j] ^ ks[j];
+          ctr = inc32(ctr);
+        }
+
+        const ctForTag = encrypt ? out : data;
+        const S = ghash(H, aad, ctForTag);
+        const tagMask = aes256EncryptBlock(J0, rk);
+        const tag = new Uint8Array(16);
+        for (let i = 0; i < 16; i++) tag[i] = S[i] ^ tagMask[i];
+
+        if (encrypt) {
+          const combined = new Uint8Array(out.length + 16);
+          combined.set(out, 0);
+          combined.set(tag, out.length);
+          return combined;
+        }
+        const givenTag = input.subarray(input.length - 16);
+        let diff = 0;
+        for (let i = 0; i < 16; i++) diff |= (tag[i] ^ givenTag[i]);
+        if (diff !== 0) throw new Error("AUTH_FAIL");
+        return out;
+      }
+
+      async function decryptVaultEnvelope(rawText, password) {
+        let env;
+        try {
+          env = JSON.parse(rawText);
+          if (!env || !env.salt || !env.nonce || !env.ciphertext) throw new Error("missing fields");
+        } catch (e) {
+          throw new Error("文件格式无效，请选择桌面版生成的 .enc 密码库文件。");
+        }
+        const version = Number(env.version || 1);
+        const iterations = Number(env.iterations || 390000);
+        const salt = b64ToBytes(env.salt);
+        const nonce = b64ToBytes(env.nonce);
+        const ct = b64ToBytes(env.ciphertext);
+        const aad = ENC_UTF8.encode("local-vault-v" + version);
+
+        let ptBytes;
+        if (window.crypto && window.crypto.subtle) {
+          const baseKey = await window.crypto.subtle.importKey(
+            "raw", ENC_UTF8.encode(password), "PBKDF2", false, ["deriveKey"]
+          );
+          const aesKey = await window.crypto.subtle.deriveKey(
+            { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
+            baseKey,
+            { name: "AES-GCM", length: 256 },
+            false,
+            ["decrypt"]
+          );
+          try {
+            const buf = await window.crypto.subtle.decrypt(
+              { name: "AES-GCM", iv: nonce, additionalData: aad, tagLength: 128 },
+              aesKey,
+              ct
+            );
+            ptBytes = new Uint8Array(buf);
+          } catch (_) {
+            throw new Error("主密码错误，无法解密该密码库。");
+          }
+        } else {
+          const key = pbkdf2Sha256Js(ENC_UTF8.encode(password), salt, iterations);
+          try {
+            ptBytes = aesGcmJsCrypt(key, nonce, ct, aad, false);
+          } catch (_) {
+            throw new Error("主密码错误，无法解密该密码库。");
+          }
+        }
+        return JSON.parse(DEC_UTF8.decode(ptBytes));
+      }
+
+      async function encryptVaultPayload(payload, password) {
+        const version = 1;
+        const iterations = 390000;
+        const salt = randomBytes(16);
+        const nonce = randomBytes(12);
+        const aad = ENC_UTF8.encode("local-vault-v" + version);
+        const ptBytes = ENC_UTF8.encode(JSON.stringify(payload));
+
+        let ctBytes;
+        if (window.crypto && window.crypto.subtle) {
+          const baseKey = await window.crypto.subtle.importKey(
+            "raw", ENC_UTF8.encode(password), "PBKDF2", false, ["deriveKey"]
+          );
+          const aesKey = await window.crypto.subtle.deriveKey(
+            { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
+            baseKey,
+            { name: "AES-GCM", length: 256 },
+            false,
+            ["encrypt"]
+          );
+          const buf = await window.crypto.subtle.encrypt(
+            { name: "AES-GCM", iv: nonce, additionalData: aad, tagLength: 128 },
+            aesKey,
+            ptBytes
+          );
+          ctBytes = new Uint8Array(buf);
+        } else {
+          const key = pbkdf2Sha256Js(ENC_UTF8.encode(password), salt, iterations);
+          ctBytes = aesGcmJsCrypt(key, nonce, ptBytes, aad, true);
+        }
+
+        return JSON.stringify({
+          version: version,
+          app_version: "v1.13.1-iPhone",
+          kdf: "PBKDF2-HMAC-SHA256",
+          iterations: iterations,
+          salt: bytesToB64(salt),
+          nonce: bytesToB64(nonce),
+          ciphertext: bytesToB64(ctBytes)
+        }, null, 2);
+      }
+
+      /* =====================================================================
+       * 2. APP STATE & HELPERS
+       * ===================================================================== */
+      const STORAGE_KEY_ENC = "lpv_cached_enc_v1";
+      const STORAGE_KEY_NAME = "lpv_cached_name_v1";
+      const STORAGE_KEY_THEME = "lpv_theme_v1";
+
+      const TYPE_META = {
+        website: { label: "网站", short: "网站", icon: "🌐", sq: "sq-website" },
+        switch:  { label: "网络设备", short: "网络设备", icon: "🖧", sq: "sq-switch" },
+        windows: { label: "Windows", short: "Windows", icon: "💻", sq: "sq-windows" },
+        app:     { label: "APP / 软件", short: "APP", icon: "📱", sq: "sq-app" },
+        other:   { label: "其他", short: "其他", icon: "🗂", sq: "sq-other" }
+      };
+
+      const state = {
+        rawEncText: "",
+        fileName: "",
+        password: "",
+        payload: null,
+        entries: [],
+        filterType: "all",
+        search: "",
+        dirty: false,
+        isDemo: false,
+        editingId: null,
+        lastActive: Date.now()
+      };
+
+      const $ = (id) => document.getElementById(id);
+
+      function nowStr() {
+        const d = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      }
+
+      function escHtml(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = $("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove("show"), 2300);
+      }
+
+      async function copyText(text, label) {
+        if (!text) return;
+        let ok = false;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            ok = true;
+          }
+        } catch (_) {}
+        if (!ok) {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          try { ok = document.execCommand("copy"); } catch (_) {}
+          document.body.removeChild(ta);
+        }
+        showToast(ok ? `已复制${label}` : "复制失败，请长按手动复制");
+      }
+
+      function formatAddress(e) {
+        const t = e.entry_type || "website";
+        if (t === "website") return e.url || "";
+        if (t === "switch") {
+          if (!e.host) return "";
+          const hp = e.port ? `${e.host}:${e.port}` : e.host;
+          return e.protocol ? `${hp} · ${e.protocol}` : hp;
+        }
+        if (t === "windows") return e.host ? (e.port ? `${e.host}:${e.port}` : e.host) : (e.domain || "");
+        if (t === "app") return e.bind_info || e.category || "";
+        if (t === "other") return e.host ? (e.port ? `${e.host}:${e.port}` : e.host) : (e.category || "");
+        return "";
+      }
+
+      function buildCommand(e) {
+        const t = e.entry_type || "website";
+        const host = (e.host || "").trim();
+        const port = (e.port || "").trim();
+        const user = (e.username || "").trim();
+        if (!host) return "";
+        if (t === "switch") {
+          const proto = (e.protocol || "SSH").toUpperCase();
+          if (proto === "TELNET") return `telnet ${host}${port && port !== "23" ? " " + port : ""}`;
+          if (proto === "WEB") return host.startsWith("http") ? host : `https://${host}${port && port !== "443" ? ":" + port : ""}`;
+          if (proto === "SSH") return `ssh ${user ? user + "@" : ""}${host}${port && port !== "22" ? " -p " + port : ""}`;
+          return "";
+        }
+        if (t === "windows") return `mstsc /v:${host}${port && port !== "3389" ? ":" + port : ""}`;
+        if (t === "other") {
+          const cat = (e.category || "").toLowerCase();
+          if (cat.includes("mysql") || port === "3306") {
+            return `mysql -h ${host} -P ${port || "3306"} -u ${user || "root"} -p`;
+          }
+          return `ssh ${user ? user + "@" : ""}${host}${port && port !== "22" ? " -p " + port : ""}`;
+        }
+        return "";
+      }
+
+      function passwordStrength(pwd) {
+        if (!pwd) return { text: "", color: "" };
+        let score = 0;
+        if (pwd.length >= 8) score++;
+        if (pwd.length >= 12) score++;
+        if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
+        if (/\d/.test(pwd)) score++;
+        if (/[^A-Za-z0-9]/.test(pwd)) score++;
+        if (score >= 4) return { text: "强", color: "#34D399" };
+        if (score >= 3) return { text: "中", color: "#FBBF24" };
+        return { text: "弱", color: "#F87171" };
+      }
+
+      function generateStrongPassword(len = 16) {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*_-";
+        const r = randomBytes(len);
+        let out = "";
+        for (let i = 0; i < len; i++) out += chars[r[i] % chars.length];
+        return out;
+      }
+
+      /* =====================================================================
+       * 3. THEME MANAGEMENT (Follows iPhone System Light/Dark by Default)
+       * ===================================================================== */
+      function applyTheme(isLight) {
+        document.body.classList.toggle("light", isLight);
+        $("btn-theme").textContent = isLight ? "🌌" : "🧊";
+        $("meta-theme-color").setAttribute("content", isLight ? "#E4EEFF" : "#070D1D");
+      }
+
+      function initTheme() {
+        let saved = null;
+        try { saved = localStorage.getItem(STORAGE_KEY_THEME); } catch (_) {}
+        if (saved === "light" || saved === "dark") {
+          applyTheme(saved === "light");
+        } else {
+          const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+          applyTheme(prefersLight);
+        }
+      }
+
+      $("btn-theme").addEventListener("click", () => {
+        const nextLight = !document.body.classList.contains("light");
+        applyTheme(nextLight);
+        try { localStorage.setItem(STORAGE_KEY_THEME, nextLight ? "light" : "dark"); } catch (_) {}
+        showToast(nextLight ? "已切换为冰川浅色" : "已切换为极光深色");
+      });
+
+      /* =====================================================================
+       * 4. UNLOCK & FILE LOADING
+       * ===================================================================== */
+      function setLoadedFileUI(name, size) {
+        $("file-drop-label").classList.add("loaded");
+        $("file-drop-name").textContent = name;
+        $("file-drop-meta").textContent = `已加载到本地内存 (${(size / 1024).toFixed(1)} KB)，输入主密码即可解密`;
+      }
+
+      function loadCachedEnc() {
+        try {
+          const cached = localStorage.getItem(STORAGE_KEY_ENC);
+          const name = localStorage.getItem(STORAGE_KEY_NAME);
+          if (cached && name) {
+            state.rawEncText = cached;
+            state.fileName = name;
+            setLoadedFileUI(name, cached.length);
+          }
+        } catch (_) {}
+      }
+
+      $("vault-file-input").addEventListener("change", (ev) => {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          state.rawEncText = String(reader.result || "");
+          state.fileName = file.name;
+          setLoadedFileUI(file.name, file.size);
+          $("unlock-error").classList.add("hidden");
+          try {
+            localStorage.setItem(STORAGE_KEY_ENC, state.rawEncText);
+            localStorage.setItem(STORAGE_KEY_NAME, state.fileName);
+          } catch (_) {}
+          $("unlock-pwd").focus();
+        };
+        reader.readAsText(file, "utf-8");
+      });
+
+      $("btn-toggle-unlock-pwd").addEventListener("click", () => {
+        const inp = $("unlock-pwd");
+        const isPwd = inp.type === "password";
+        inp.type = isPwd ? "text" : "password";
+        $("btn-toggle-unlock-pwd").textContent = isPwd ? "隐藏" : "显示";
+      });
+
+      async function doUnlock() {
+        const errBox = $("unlock-error");
+        errBox.classList.add("hidden");
+        if (!state.rawEncText) {
+          errBox.textContent = "请先点击上方区域选择你的 .enc 密码库文件（或点击「体验演示库」）。";
+          errBox.classList.remove("hidden");
+          return;
+        }
+        const pwd = $("unlock-pwd").value;
+        if (!pwd) {
+          errBox.textContent = "请输入主密码。";
+          errBox.classList.remove("hidden");
+          return;
+        }
+        const btn = $("btn-unlock");
+        btn.disabled = true;
+        btn.textContent = "⏳ 正在本地 PBKDF2 派生密钥...";
+        // Allow UI repaint before heavy KDF
+        await new Promise((r) => setTimeout(r, 30));
+        try {
+          const payload = await decryptVaultEnvelope(state.rawEncText, pwd);
+          state.password = pwd;
+          state.payload = payload;
+          state.entries = Array.isArray(payload.entries) ? payload.entries : [];
+          state.isDemo = false;
+          state.dirty = false;
+          enterMainView();
+        } catch (err) {
+          errBox.textContent = err.message || "解密失败，请检查文件或密码。";
+          errBox.classList.remove("hidden");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "🔓 本地解密打开";
+        }
+      }
+
+      $("btn-unlock").addEventListener("click", doUnlock);
+      $("unlock-pwd").addEventListener("keydown", (e) => { if (e.key === "Enter") doUnlock(); });
+
+      $("btn-demo").addEventListener("click", () => {
+        state.isDemo = true;
+        state.password = "demo1234";
+        state.fileName = "vault_demo.enc";
+        state.payload = { owner_id: "demo", owner_name: "演示账号", updated_at: nowStr(), entries: [] };
+        state.entries = [
+          { id: "d1", entry_type: "website", title: "vCenter 管理平台", category: "工作平台", url: "https://10.1.1.10", username: "Administrator@vsphere.local", password: "Vc#2026!Secure99", is_favorite: "1", notes: "内网虚拟化集群管理入口", updated_at: nowStr() },
+          { id: "d2", entry_type: "switch", title: "核心交换机 01", category: "核心交换机", host: "192.168.0.1", port: "22", protocol: "SSH", username: "admin", password: "Sw!Core@8821", enable_password: "En#Super991", is_favorite: "1", notes: "机房 A01 机柜顶部", updated_at: nowStr() },
+          { id: "d3", entry_type: "windows", title: "跳板机 WinServer", category: "服务器", host: "10.1.2.15", port: "3389", domain: "CORP", username: "Administrator", password: "Win$Jump#4412", pin_code: "852041", is_favorite: "", notes: "运维专用远程桌面", updated_at: nowStr() },
+          { id: "d4", entry_type: "app", title: "Steam 账号", category: "游戏娱乐", bind_info: "demo@example.com", username: "player_demo", password: "Stm@2026Play!", is_favorite: "", notes: "已开启手机令牌", updated_at: nowStr() },
+          { id: "d5", entry_type: "other", title: "生产 MySQL 主库", category: "MySQL", host: "10.1.5.20", port: "3306", username: "ops_ro", password: "Db#ReadOnly77", is_favorite: "", notes: "只读巡检账号", updated_at: nowStr() }
+        ];
+        state.dirty = false;
+        enterMainView();
+        showToast("已进入演示密码库，可体验全部交互");
+      });
+
+      $("btn-new-vault").addEventListener("click", () => {
+        $("nv-user").value = "";
+        $("nv-pwd").value = "";
+        $("new-vault-sheet").classList.add("open");
+      });
+      $("btn-nv-cancel").addEventListener("click", () => $("new-vault-sheet").classList.remove("open"));
+      $("new-vault-sheet").addEventListener("click", (e) => {
+        if (e.target === $("new-vault-sheet")) $("new-vault-sheet").classList.remove("open");
+      });
+      $("new-vault-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const u = $("nv-user").value.trim();
+        const p = $("nv-pwd").value;
+        if (!u || p.length < 6) return;
+        state.isDemo = false;
+        state.password = p;
+        state.fileName = `vault_${u}_mobile.enc`;
+        state.payload = { owner_id: "m_" + Date.now(), owner_name: u, updated_at: nowStr(), entries: [] };
+        state.entries = [];
+        state.dirty = true;
+        $("new-vault-sheet").classList.remove("open");
+        enterMainView();
+        showToast("已创建新库，添加密码后记得导出 .enc 保存");
+      });
+
+      /* =====================================================================
+       * 5. MAIN VIEW RENDERING
+       * ===================================================================== */
+      function enterMainView() {
+        $("view-unlock").classList.add("hidden");
+        $("view-main").classList.remove("hidden");
+        $("unlock-pwd").value = "";
+        state.filterType = "all";
+        state.search = "";
+        $("search-input").value = "";
+        const owner = (state.payload && state.payload.owner_name) || "本地账号";
+        $("main-owner-title").textContent = owner;
+        $("main-meta-sub").textContent = state.isDemo ? "演示模式 · 不会修改真实文件" : `${state.fileName} · 纯本地离线`;
+        renderAll();
+      }
+
+      function lockVault() {
+        state.password = "";
+        state.payload = null;
+        state.entries = [];
+        state.dirty = false;
+        closeSheet($("detail-sheet"));
+        closeSheet($("edit-sheet"));
+        $("view-main").classList.add("hidden");
+        $("view-unlock").classList.remove("hidden");
+        showToast("密码箱已锁定");
+      }
+
+      $("btn-lock").addEventListener("click", lockVault);
+
+      function getFilteredEntries() {
+        const kw = state.search.trim().toLowerCase();
+        return state.entries
+          .filter((e) => {
+            if (state.filterType === "favorites" && e.is_favorite !== "1") return false;
+            if (state.filterType !== "all" && state.filterType !== "favorites" && (e.entry_type || "website") !== state.filterType) return false;
+            if (!kw) return true;
+            const hay = [e.title, e.username, e.category, e.url, e.host, e.port, e.protocol, e.domain, e.bind_info, e.notes].join(" ").toLowerCase();
+            return hay.includes(kw);
+          })
+          .sort((a, b) => {
+            const fa = a.is_favorite === "1" ? 1 : 0;
+            const fb = b.is_favorite === "1" ? 1 : 0;
+            if (fa !== fb) return fb - fa;
+            return String(b.updated_at || "").localeCompare(String(a.updated_at || ""));
+          });
+      }
+
+      function renderPills() {
+        const counts = { all: state.entries.length, favorites: 0, website: 0, switch: 0, windows: 0, app: 0, other: 0 };
+        state.entries.forEach((e) => {
+          if (e.is_favorite === "1") counts.favorites++;
+          const t = e.entry_type || "website";
+          counts[t] = (counts[t] || 0) + 1;
+        });
+        const defs = [
+          ["all", "全部"],
+          ["favorites", "⭐ 收藏"],
+          ["website", "🌐 网站"],
+          ["switch", "🖧 网络设备"],
+          ["windows", "💻 Windows"],
+          ["app", "📱 APP"],
+          ["other", "🗂 其他"]
+        ];
+        const strip = $("cat-pill-strip");
+        strip.innerHTML = defs.map(([k, lbl]) => `
+          <button type="button" class="cat-pill ${state.filterType === k ? "active" : ""}" data-filter="${k}">
+            ${lbl} <span>${counts[k] || 0}</span>
+          </button>
+        `).join("");
+        strip.querySelectorAll(".cat-pill").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            state.filterType = btn.dataset.filter;
+            renderAll();
+          });
+        });
+      }
+
+      function renderList() {
+        const list = getFilteredEntries();
+        const el = $("entry-list");
+        $("dirty-bar").classList.toggle("hidden", !state.dirty);
+
+        if (!list.length) {
+          el.innerHTML = `<div class="glass-panel empty-state">📭<br/>暂无匹配的密码条目<br/>可尝试清空搜索词或点击右上角「+ 新增」</div>`;
+          return;
+        }
+
+        el.innerHTML = list.map((e) => {
+          const m = TYPE_META[e.entry_type] || TYPE_META.website;
+          const addr = formatAddress(e);
+          const subParts = [addr, e.username].filter(Boolean);
+          const sub = subParts.join(" · ") || m.label;
+          const fav = e.is_favorite === "1";
+          return `
+            <div class="entry-card" data-id="${escHtml(e.id)}">
+              <div class="squircle ${m.sq}">${m.icon}</div>
+              <div class="card-mid">
+                <div class="card-top">
+                  <div class="card-title">${escHtml(e.title)}</div>
+                  <span class="card-tag">${escHtml(e.category || m.short)}</span>
+                </div>
+                <div class="card-sub">${escHtml(sub)}</div>
+              </div>
+              <div class="card-actions">
+                <button type="button" class="fav-btn ${fav ? "on" : ""}" data-fav="${escHtml(e.id)}" title="收藏">${fav ? "★" : "☆"}</button>
+                ${e.password ? `<button type="button" class="copy-mini" data-cp="${escHtml(e.id)}">复制</button>` : ""}
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        el.querySelectorAll(".entry-card").forEach((card) => {
+          card.addEventListener("click", (ev) => {
+            if (ev.target.closest("[data-fav]") || ev.target.closest("[data-cp]")) return;
+            openDetail(card.dataset.id);
+          });
+        });
+
+        el.querySelectorAll("[data-fav]").forEach((btn) => {
+          btn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            const item = state.entries.find((x) => x.id === btn.dataset.fav);
+            if (!item) return;
+            item.is_favorite = item.is_favorite === "1" ? "" : "1";
+            item.updated_at = nowStr();
+            state.dirty = true;
+            renderAll();
+            showToast(item.is_favorite === "1" ? "已置顶收藏" : "已取消收藏");
+          });
+        });
+
+        el.querySelectorAll("[data-cp]").forEach((btn) => {
+          btn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            const item = state.entries.find((x) => x.id === btn.dataset.cp);
+            if (item && item.password) copyText(item.password, "密码");
+          });
+        });
+      }
+
+      function renderAll() {
+        renderPills();
+        renderList();
+      }
+
+      $("search-input").addEventListener("input", (e) => {
+        state.search = e.target.value;
+        renderList();
+      });
+
+      /* =====================================================================
+       * 6. DETAIL BOTTOM SHEET
+       * ===================================================================== */
+      function closeSheet(el) { el.classList.remove("open"); }
+
+      $("detail-sheet").addEventListener("click", (e) => {
+        if (e.target === $("detail-sheet")) closeSheet($("detail-sheet"));
+      });
+
+      function fieldRowHtml(label, value, copyVal, copyLbl, mono = true) {
+        if (!value) return "";
+        return `
+          <div class="field-card">
+            <div class="field-card-head">
+              <span class="field-card-lbl">${escHtml(label)}</span>
+              ${copyVal ? `<button type="button" class="mini-pill" data-copy-val="${escHtml(copyVal)}" data-copy-lbl="${escHtml(copyLbl)}">复制</button>` : ""}
+            </div>
+            <div class="field-card-val ${mono ? "mono" : ""}">${escHtml(value)}</div>
+          </div>
+        `;
+      }
+
+      function secretRowHtml(idSuffix, label, secretVal, copyLbl) {
+        if (!secretVal) return "";
+        const st = passwordStrength(secretVal);
+        const mask = "•".repeat(Math.min(Math.max(secretVal.length, 8), 20));
+        return `
+          <div class="field-card">
+            <div class="field-card-head">
+              <span class="field-card-lbl">${escHtml(label)} ${st.text ? `<span style="color:${st.color}; margin-left:4px;">· ${st.text}</span>` : ""}</span>
+              <div class="mini-btns">
+                <button type="button" class="mini-pill" data-reveal="${idSuffix}">显示</button>
+                <button type="button" class="mini-pill accent" data-copy-val="${escHtml(secretVal)}" data-copy-lbl="${escHtml(copyLbl)}">复制</button>
+              </div>
+            </div>
+            <div class="field-card-val mono" id="sec-val-${idSuffix}" data-mask="${escHtml(mask)}" data-raw="${escHtml(secretVal)}" data-shown="0">${escHtml(mask)}</div>
+          </div>
+        `;
+      }
+
+      function openDetail(id) {
+        const e = state.entries.find((x) => x.id === id);
+        if (!e) return;
+        const m = TYPE_META[e.entry_type] || TYPE_META.website;
+        const cmd = buildCommand(e);
+        const isWebLink = (e.entry_type === "website" && e.url) || (e.entry_type === "switch" && (e.protocol || "").toUpperCase() === "WEB" && e.host);
+        const openUrlTarget = e.entry_type === "website"
+          ? (/^https?:\/\//i.test(e.url) ? e.url : "https://" + e.url)
+          : cmd;
+
+        let fieldsHtml = "";
+        if (e.entry_type === "website") {
+          fieldsHtml += fieldRowHtml("网站地址", e.url, e.url, "网址", true);
+        } else if (e.entry_type === "switch") {
+          const hp = e.host ? (e.port ? `${e.host}:${e.port}` : e.host) : "";
+          fieldsHtml += fieldRowHtml(`IP 地址 / 主机 (${e.protocol || "SSH"})`, hp, e.host, "IP 地址", true);
+          if (cmd) fieldsHtml += fieldRowHtml("连接命令", cmd, cmd, "连接命令", true);
+        } else if (e.entry_type === "windows") {
+          const hp = e.host ? (e.port ? `${e.host}:${e.port}` : e.host) : "";
+          fieldsHtml += fieldRowHtml("IP / 计算机名", hp, e.host, "主机地址", true);
+          fieldsHtml += fieldRowHtml("域 / 工作组", e.domain, e.domain, "域名", true);
+          if (cmd) fieldsHtml += fieldRowHtml("远程桌面命令", cmd, cmd, "远程命令", true);
+        } else if (e.entry_type === "app") {
+          fieldsHtml += fieldRowHtml("绑定手机 / 邮箱", e.bind_info, e.bind_info, "绑定信息", true);
+        } else {
+          const hp = e.host ? (e.port ? `${e.host}:${e.port}` : e.host) : "";
+          fieldsHtml += fieldRowHtml("主机 / IP 地址", hp, e.host, "主机地址", true);
+          if (cmd) fieldsHtml += fieldRowHtml("连接命令", cmd, cmd, "连接命令", true);
+        }
+
+        fieldsHtml += fieldRowHtml("账号 / 用户名", e.username, e.username, "账号", true);
+        fieldsHtml += secretRowHtml("pwd", "登录密码", e.password, "密码");
+        if (e.entry_type === "switch") fieldsHtml += secretRowHtml("en", "Enable / 特权密码", e.enable_password, "特权密码");
+        if (e.entry_type === "windows") fieldsHtml += secretRowHtml("pin", "PIN 码", e.pin_code, "PIN 码");
+        fieldsHtml += fieldRowHtml("备注信息", e.notes, "", "", false);
+
+        $("detail-content").innerHTML = `
+          <div class="detail-hero">
+            <div class="squircle ${m.sq}">${m.icon}</div>
+            <h3 class="detail-title">${escHtml(e.title)}</h3>
+            <div class="detail-badges">
+              <span class="card-tag">${escHtml(m.label)}</span>
+              ${e.category ? `<span class="card-tag" style="background:var(--glass-card);color:var(--text-secondary);">${escHtml(e.category)}</span>` : ""}
+            </div>
+            <div class="detail-acts">
+              ${isWebLink ? `<a href="${escHtml(openUrlTarget)}" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="text-decoration:none;background:var(--accent-btn);color:#fff;border-color:rgba(255,255,255,0.3);">🌐 打开网址</a>` : ""}
+              ${cmd && !isWebLink ? `<button type="button" class="btn-secondary" style="background:var(--accent-btn);color:#fff;border-color:rgba(255,255,255,0.3);" id="dt-copy-cmd">📋 复制连接命令</button>` : ""}
+              <button type="button" class="btn-secondary" id="dt-edit">编辑</button>
+              <button type="button" class="btn-danger" id="dt-del">删除</button>
+            </div>
+          </div>
+          ${fieldsHtml}
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:8px;">最后更新：${escHtml(e.updated_at || "-")}</div>
+        `;
+
+        const box = $("detail-content");
+        box.querySelectorAll("[data-copy-val]").forEach((b) => {
+          b.addEventListener("click", () => copyText(b.dataset.copyVal, b.dataset.copyLbl || "内容"));
+        });
+        box.querySelectorAll("[data-reveal]").forEach((b) => {
+          b.addEventListener("click", () => {
+            const v = $("sec-val-" + b.dataset.reveal);
+            const shown = v.dataset.shown === "1";
+            v.dataset.shown = shown ? "0" : "1";
+            v.textContent = shown ? v.dataset.mask : v.dataset.raw;
+            b.textContent = shown ? "显示" : "隐藏";
+          });
+        });
+        const btnCmd = $("dt-copy-cmd");
+        if (btnCmd) btnCmd.addEventListener("click", () => copyText(cmd, "连接命令"));
+        $("dt-edit").addEventListener("click", () => {
+          closeSheet($("detail-sheet"));
+          openEditModal(e);
+        });
+        $("dt-del").addEventListener("click", () => {
+          if ($("dt-del").dataset.confirm !== "1") {
+            $("dt-del").dataset.confirm = "1";
+            $("dt-del").textContent = "再点确认删除";
+            return;
+          }
+          state.entries = state.entries.filter((x) => x.id !== e.id);
+          state.dirty = true;
+          closeSheet($("detail-sheet"));
+          renderAll();
+          showToast("已删除该条目");
+        });
+
+        $("detail-sheet").classList.add("open");
+      }
+
+      /* =====================================================================
+       * 7. ADD / EDIT MODAL
+       * ===================================================================== */
+      function syncEditFieldVisibility() {
+        const t = $("ed-type").value;
+        $("wrap-url").classList.toggle("hidden", t !== "website");
+        $("wrap-host").classList.toggle("hidden", t === "website" || t === "app");
+        $("wrap-proto-port").classList.toggle("hidden", t === "website" || t === "app");
+        $("wrap-proto").classList.toggle("hidden", t !== "switch");
+        $("wrap-domain").classList.toggle("hidden", t !== "windows");
+        $("wrap-bind").classList.toggle("hidden", t !== "app");
+        $("wrap-enable").classList.toggle("hidden", t !== "switch");
+        $("wrap-pin").classList.toggle("hidden", t !== "windows");
+      }
+
+      $("ed-type").addEventListener("change", syncEditFieldVisibility);
+
+      function openEditModal(entry) {
+        state.editingId = entry ? entry.id : null;
+        $("edit-sheet-title").textContent = entry ? "编辑密码条目" : "新增密码条目";
+        $("ed-type").value = (entry && entry.entry_type) || (state.filterType !== "all" && state.filterType !== "favorites" ? state.filterType : "website");
+        $("ed-cat").value = (entry && entry.category) || "";
+        $("ed-title").value = (entry && entry.title) || "";
+        $("ed-url").value = (entry && entry.url) || "";
+        $("ed-host").value = (entry && entry.host) || "";
+        $("ed-proto").value = (entry && entry.protocol) || "SSH";
+        $("ed-port").value = (entry && entry.port) || "";
+        $("ed-domain").value = (entry && entry.domain) || "";
+        $("ed-bind").value = (entry && entry.bind_info) || "";
+        $("ed-user").value = (entry && entry.username) || "";
+        $("ed-pwd").value = (entry && entry.password) || "";
+        $("ed-enable").value = (entry && entry.enable_password) || "";
+        $("ed-pin").value = (entry && entry.pin_code) || "";
+        $("ed-notes").value = (entry && entry.notes) || "";
+        syncEditFieldVisibility();
+        $("edit-sheet").classList.add("open");
+      }
+
+      $("btn-add-entry").addEventListener("click", () => openEditModal(null));
+      $("btn-edit-cancel").addEventListener("click", () => closeSheet($("edit-sheet")));
+      $("edit-sheet").addEventListener("click", (e) => {
+        if (e.target === $("edit-sheet")) closeSheet($("edit-sheet"));
+      });
+      $("btn-gen-pwd").addEventListener("click", () => {
+        $("ed-pwd").value = generateStrongPassword(16);
+        showToast("已生成 16 位随机强密码");
+      });
+
+      $("edit-form").addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        const title = $("ed-title").value.trim();
+        if (!title) return;
+        const ts = nowStr();
+        const existing = state.editingId ? state.entries.find((x) => x.id === state.editingId) : null;
+        const item = {
+          id: existing ? existing.id : ("m_" + Date.now() + "_" + Math.random().toString(16).slice(2, 8)),
+          owner_id: (state.payload && state.payload.owner_id) || "mobile",
+          owner_name: (state.payload && state.payload.owner_name) || "user",
+          access_level: (existing && existing.access_level) || "normal",
+          entry_type: $("ed-type").value,
+          title: title,
+          category: $("ed-cat").value.trim() || TYPE_META[$("ed-type").value].short,
+          username: $("ed-user").value.trim(),
+          password: $("ed-pwd").value,
+          url: $("ed-url").value.trim(),
+          host: $("ed-host").value.trim(),
+          port: $("ed-port").value.trim(),
+          protocol: $("ed-type").value === "switch" ? $("ed-proto").value : "",
+          enable_password: $("ed-enable").value,
+          domain: $("ed-domain").value.trim(),
+          pin_code: $("ed-pin").value,
+          bind_info: $("ed-bind").value.trim(),
+          is_favorite: existing ? (existing.is_favorite || "") : "",
+          notes: $("ed-notes").value.trim(),
+          created_at: existing ? (existing.created_at || ts) : ts,
+          updated_at: ts
+        };
+        if (existing) {
+          const idx = state.entries.findIndex((x) => x.id === existing.id);
+          state.entries[idx] = item;
+        } else {
+          state.entries.unshift(item);
+        }
+        state.dirty = true;
+        closeSheet($("edit-sheet"));
+        renderAll();
+        showToast(existing ? "已保存修改，记得导出 .enc" : "已添加条目，记得导出 .enc");
+      });
+
+      /* =====================================================================
+       * 8. EXPORT .ENC (100% Compatible with Desktop) + AUTO-LOCK
+       * ===================================================================== */
+      async function exportEncFile() {
+        if (!state.password || !state.payload) return;
+        showToast("正在本地加密生成 .enc ...");
+        await new Promise((r) => setTimeout(r, 30));
+        try {
+          const outPayload = {
+            owner_id: state.payload.owner_id || "mobile",
+            owner_name: state.payload.owner_name || "user",
+            updated_at: nowStr(),
+            entries: state.entries
+          };
+          const encText = await encryptVaultPayload(outPayload, state.password);
+          state.rawEncText = encText;
+          state.dirty = false;
+          try {
+            localStorage.setItem(STORAGE_KEY_ENC, encText);
+            localStorage.setItem(STORAGE_KEY_NAME, state.fileName || "vault_export.enc");
+          } catch (_) {}
+          const blob = new Blob([encText], { type: "application/octet-stream" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = state.fileName || "vault_export.enc";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          renderList();
+          showToast("已导出加密库文件，可直接放回电脑使用");
+        } catch (err) {
+          showToast("导出失败：" + (err.message || "未知错误"));
+        }
+      }
+
+      $("btn-export-enc").addEventListener("click", exportEncFile);
+      $("btn-dirty-export").addEventListener("click", exportEncFile);
+
+      // 5-minute inactivity auto-lock
+      ["touchstart", "click", "keydown"].forEach((evt) => {
+        window.addEventListener(evt, () => { state.lastActive = Date.now(); }, { passive: true });
+      });
+      setInterval(() => {
+        if (state.payload && Date.now() - state.lastActive > 5 * 60 * 1000) {
+          lockVault();
+          showToast("长时间无操作，已自动锁定");
+        }
+      }, 15000);
+
+      // Initialize
+      initTheme();
+      loadCachedEnc();
+    })();
+  </script>
+</body>
+</html>
